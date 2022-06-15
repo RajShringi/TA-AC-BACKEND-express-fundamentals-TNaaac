@@ -1,6 +1,6 @@
 const express = require("express");
 const fs = require("fs");
-const path = require("path");
+// var { access, constants } = require("fs");
 
 const app = express();
 
@@ -24,20 +24,35 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  const path = __dirname + "/public" + req.url;
-  console.log(path);
+  const filePath = __dirname + "/public" + req.url;
+  console.log(filePath);
   if (req.url.split(".").pop() === "jpg") {
-    fs.readFile(path, (err, content) => {
+    fs.readFile(filePath, (err, content) => {
+      console.log(err, content);
       if (err) {
         console.log(err);
-        return;
+        next();
+      } else {
+        console.log("execute");
+        res.setHeader("content-type", "image/jpeg");
+        res.sendFile(filePath);
       }
-      res.end(content);
     });
-    next();
   }
-  next();
 });
+
+// app.use((req, res, next) => {
+//   if (req.url === "/") return next();
+//   const filePath = __dirname + "/public" + req.url;
+//   access(filePath, constants.F_OK, (err) => {
+//     if (err) {
+//       return next();
+//     } else {
+//       res.contentType("image/jpeg");
+//       res.sendFile(filePath);
+//     }
+//   });
+// });
 
 app.get("/public", (req, res) => {
   res.send("welcome");
